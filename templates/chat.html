@@ -1,0 +1,51 @@
+<link rel="stylesheet" href="/static/style.css">
+
+<div class="card">
+    <h2>Chat Room</h2>
+
+    <div class="chat-box" id="chat"></div>
+
+    <form id="chatForm">
+        <input id="msg" placeholder="Xabar yoz..." autocomplete="off" required>
+        <button>Send</button>
+    </form>
+
+    <a href="/logout">Logout</a>
+</div>
+
+<script>
+const chatBox = document.getElementById("chat");
+const form = document.getElementById("chatForm");
+const input = document.getElementById("msg");
+
+/* Xabar yuborish */
+form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    if (input.value.trim() === "") return;
+
+    await fetch("/send", {
+        method: "POST",
+        body: new URLSearchParams({ message: input.value })
+    });
+
+    input.value = "";
+};
+
+/* Xabarlarni olish */
+async function loadMessages() {
+    const res = await fetch("/messages");
+    const data = await res.json();
+
+    chatBox.innerHTML = "";
+    data.forEach(m => {
+        chatBox.innerHTML += `<div class="message"><b>${m[0]}:</b> ${m[1]}</div>`;
+    });
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+/* Har 1 soniyada yangilanadi */
+setInterval(loadMessages, 1000);
+loadMessages();
+</script>
